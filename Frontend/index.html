@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phishing URL Detector</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Phishing URL Detector</h1>
+
+        <input type="text" id="urlInput" placeholder="Enter URL here" />
+        <button onclick="checkURL()">Check URL</button>
+
+        <div id="result">
+            <p id="statusText"></p>
+            <p id="riskText"></p>
+        </div>
+
+        <canvas id="riskChart" width="300" height="300"></canvas>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
