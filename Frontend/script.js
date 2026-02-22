@@ -1,49 +1,26 @@
-async function checkURL() {
-    const url = document.getElementById('urlInput').value;
-    if (!url) {
-        alert("Please enter a URL!");
-        return;
-    }
+async function checkUrl() {
+  const url = document.getElementById("url").value;
+  const res = await fetch("http://127.0.0.1:5000/check", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ url })
+  });
 
-    // Send URL to backend
-    const response = await fetch('http://127.0.0.1:5000/check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: url })
-    });
+  const data = await res.json();
 
-    const data = await response.json();
+  const statusEl = document.getElementById("status");
+  const riskEl = document.getElementById("risk");
+  const adviceEl = document.getElementById("advice");
 
-    // Show results
-    document.getElementById('statusText').innerText = "Status: " + data.status;
-    document.getElementById('riskText').innerText = "Risk: " + data.risk_percentage + "%";
+  statusEl.innerText = "Status: " + data.status;
+  riskEl.innerText = "Risk: " + data.risk_percentage + "%";
+  adviceEl.innerText = "Advice: " + data.advice;
 
-    // Draw chart
-    drawChart(data.risk_percentage);
-}
-
-function drawChart(risk) {
-    const ctx = document.getElementById('riskChart').getContext('2d');
-
-    // Destroy previous chart if exists
-    if (window.riskChartInstance) window.riskChartInstance.destroy();
-
-    window.riskChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Risk', 'Safe'],
-            datasets: [{
-                data: [risk, 100 - risk],
-                backgroundColor: ['#e74c3c', '#2ecc71']
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom'
-                }
-            }
-        }
-    });
+  if (data.status === "SAFE") {
+    statusEl.style.color = "green";
+  } else if (data.status === "SUSPICIOUS") {
+    statusEl.style.color = "orange";
+  } else {
+    statusEl.style.color = "red";
+  }
 }
