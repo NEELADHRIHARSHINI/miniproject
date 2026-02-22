@@ -9,20 +9,34 @@ CORS(app)  # Allow cross-origin requests
 # ---------- Default route ----------
 @app.route("/", methods=["GET"])
 def home():
-    return "Backend is running!"
+    return jsonify({"message": "Backend is running!"})
+
+# ---------- Health check route ----------
+@app.route("/health", methods=["GET"])
+def health():
+    return jsonify({"status": "ok"})
 
 # ---------- URL check route ----------
-@app.route("/check", methods=["POST"])
+@app.route("/check", methods=["GET", "POST"])
 def check_url():
-    # Get URL from JSON request
-    data = request.get_json()
-    if not data or "url" not in data:
-        return jsonify({"error": "No URL provided"}), 400
+    try:
+        # Support both GET (browser testing) and POST (frontend)
+        if request.method == "GET":
+            url = request.args.get("url")
+        else:
+            data = request.get_json()
+            url = data.get("url") if data else None
 
-    url = data["url"]
-    # Get prediction from ML model
-    result = predict_url(url)
-    return jsonify(result)
+        if not url:
+            return jsonify({"error": "No URL provided"}), 400
+
+        # Get prediction from ML model
+        result = predict_url(url)
+        return jsonify(result)
+
+    except Exception as e:
+        # Graceful error handling (helps in demos)
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
 
 # ---------- Run server ----------
 if __name__ == "__main__":
